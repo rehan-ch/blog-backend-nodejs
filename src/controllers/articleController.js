@@ -1,70 +1,82 @@
 import Article from "../models/Article.js";
-import mongoose from 'mongoose';
+import ErrorResponse from "../utils/errorHandler.js";
+import { validateObjectId } from "../utils/validate.js";
+import { successResponse } from "../utils/response.js";
 
-
-export const getAllArticles = async (req, res) => {
-    try{
-        const articles = await Article.find();
-        res.json(articles);
-    }
-    catch(e){
-        res.status(5000).json({message: "Server Error", error: e.message})
-    }
+export const getAllArticles = async (req, res, next) => {
+  try {
+    const articles = await Article.find();
+    successResponse(res, articles, 'Articles fetched successfully');
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const getArticleById = async (req, res) => {
-    const {id} = req.params;
-    if(!mongoose.Types.ObjectId.isValid(id)){
-        return res.status(400).json({ message: 'Invalid article ID format' });
-    }
-    try{
-        const article = await Article.findById(id)
-        if (!article) return res.status(400).json({message: "Article Not Found"})
-        res.json(article)
-    }
-    catch(e){
-        res.status(500).json({ message: 'Server Error', error: e.message });
-    }
-}
+export const getArticleById = async (req, res, next) => {
+  const { id } = req.params;
 
-export const createArticle = async (req, res) => {
-    const {title, content, author} = req.body;
-    try{
-        const article  = await new Article({
-            title,
-            content,
-            author
-        });
-        const savedArticle = await article.save();
-        res.status(201).json(savedArticle);
-    }
-    catch(e){
-        res.status(500).json({ message: 'Server Error', error: e.message });
-    }
-}
+  try {
+    validateObjectId(id, 'Article');
 
-export const updateArticleById = async (req, res) => {
-    const { id } = req.params;
-    const { title, content, author } = req.body;
-    try{
-        const article = await Article.findByIdAndUpdate(id, { title, content, author }, {new: true, runValidators: true})
-        if(!article) return res.status(400).json({message: "Article Not Found"})
-        res.status(200).json({message: "Article Updated Successfully!!"})
+    const article = await Article.findById(id);
+    if (!article) {
+      return next(new ErrorResponse('Article Not Found', 404));
     }
-    catch(e){
-        res.status(500).json({ message: 'Server Error', error: e.message });
-    }
-}
 
-export const deleteArticleById = async (req, res) => {
-    const { id } = req.params;
-    try{
-        const deletedArticle = await Article.findByIdAndDelete(id)
-        if(!deletedArticle) return req.status(400).json({message: "Artilce Not Found"});
+    successResponse(res, article, 'Article fetched successfully');
+  } catch (error) {
+    next(error);
+  }
+};
 
-        res.status(200).json({message: "Article Deleted Successfully!!"})
+export const createArticle = async (req, res, next) => {
+  const { title, content, author } = req.body;
+
+  try {
+    const newArticle = new Article({ title, content, author });
+    const savedArticle = await newArticle.save();
+    successResponse(res, savedArticle, 'Article created successfully', 201);  // 201 Created
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateArticleById = async (req, res, next) => {
+  const { id } = req.params;
+  const { title, content, author } = req.body;
+
+  try {
+    validateObjectId(id, 'Article');
+
+    const updatedArticle = await Article.findByIdAndUpdate(
+      id,
+      { title, content, author },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedArticle) {
+      return next(new ErrorResponse('Article Not Found', 404));
     }
-    catch(e){
-        res.status(500).json({message: 'Server Error', error: e.message})
+
+    successResponse(res, updatedArticle, 'Article updated successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteArticleById = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    validateObjectId(id, 'Article');
+
+    const deletedArticle = await Article.findByIdAndDelete(id);
+    if (!deletedArticle) {
+      return next(new ErrorResponse('Article Not Found', 404));
     }
-}
+
+    successResponse(res, deletedArticle, 'Article deleted successfully');
+  } catch (error) {
+    next(error);
+  }
+};

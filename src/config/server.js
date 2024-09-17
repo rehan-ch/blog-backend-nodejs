@@ -4,6 +4,7 @@ import { createServer } from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import articleRoutes from '../routes/articleRoutes.js';
+import errorHandler from '../middleware/errorHandler.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/articles', articleRoutes);
 
+app.use(errorHandler);
 export const startServer = () => {
     const port = process.env.PORT || 3000; // Default to port 3000 if PORT is not set
     const server = createServer(app);
