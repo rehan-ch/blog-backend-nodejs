@@ -4,6 +4,7 @@ import { createServer } from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import articleRoutes from '../routes/articleRoutes.js';
+import userRoutes from '../routes/userRoutes.js';
 import errorHandler from '../middleware/errorHandler.js';
 
 // Load environment variables from .env file
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/articles', articleRoutes);
+app.use('/api/users', userRoutes);
 
 app.use(errorHandler);
 export const startServer = () => {
