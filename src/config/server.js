@@ -6,12 +6,16 @@ import dotenv from 'dotenv';
 import articleRoutes from '../routes/articleRoutes.js';
 import userRoutes from '../routes/userRoutes.js';
 import errorHandler from '../middleware/errorHandler.js';
+import passport from 'passport';
+import { passportConfig } from './config/passport.js';
 
 // Load environment variables from .env file
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(passport.initialize());
+passportConfig(passport);
 
 // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
@@ -23,6 +27,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/articles', articleRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/auth', userRoutes);
 
 app.use(errorHandler);
 export const startServer = () => {
