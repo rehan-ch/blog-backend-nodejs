@@ -31,7 +31,7 @@ const userSchema = new Schema({
     select: false // Do not return the password field in queries
   }
 }, {
-  timestamps: true // Automatically add createdAt and updatedAt fields
+  timestamps: true
 });
 
 const User = model('User', userSchema);
