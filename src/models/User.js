@@ -13,6 +13,11 @@ const userSchema = new Schema({
     trim: true,
     maxlength: [50, 'Last name cannot be longer than 50 characters']
   },
+  role: {
+    type: String,
+    required: true
+  },
+
   email: {
     type: String,
     unique: true,
